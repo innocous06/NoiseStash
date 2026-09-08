@@ -1,84 +1,64 @@
-﻿# NoiseStash 🎧
+﻿# NoiseStash
 
-> *"Hearing is non-renewable."*
+Hearing damage from environmental noise is cumulative and permanent. Most mobile sound meters simply report a momentary decibel number, leaving users to guess whether their exposure is actually dangerous over time.
 
-**NoiseStash** is an intelligent, privacy-first personal hearing preservation platform for Android. It converts invisible, damaging environmental noise into an intuitive daily safe listening budget in real time.
-
----
-
-## 🌟 Overview
-
-Built for daily commuters, students, music lovers, and industrial workers navigating loud environments, **NoiseStash** shields human hearing before irreversible inner-ear stereocilia damage occurs. 
-
-By capturing raw sound pressure levels directly from the device microphone—bypassing smartphone AGC distortion via an ultra-low-latency (<100ms) sampling engine—NoiseStash pairs real-time on-device acoustic classification with clinical NIOSH/WHO dosage models. All audio processing is conducted **100% offline and on-device**, ensuring complete user privacy while delivering actionable inner-ear recovery recommendations.
+NoiseStash is an Android application designed to track environmental sound exposure and calculate a real-time daily safe listening budget based on clinical NIOSH and WHO dosage standards. All audio processing and classification runs entirely on-device and offline.
 
 ---
 
-## 🚀 Key Features
+## How It Works
 
-### 1. Generative Particle Swarm Intro
-- Atmospheric particle canvas that organically condenses into a crisp dot-matrix typography spelling **NoiseStash**, accompanied by the signature tagline *"hearing is non-renewable"*.
-- Adapts dynamically to light and dark theme palettes.
-- Replayable anytime via the Settings menu.
+### 1. Sound Pressure Level (SPL) Measurement
+The app samples ambient audio using Android's `AudioRecord` API, requesting unprocessed audio where available to avoid distortion from device-level automatic gain control (AGC) or noise suppression. Peak and RMS values are computed in sub-100ms buffers and converted to decibels (dB SPL). A decibel trimmer in Settings allows users to calibrate readings against dedicated hardware meters when needed.
 
-### 2. True SPL Engine & Hardware Calibration
-- Bypasses hardware Automatic Gain Control (AGC) and noise cancellation filters to capture genuine physical Sound Pressure Levels (dB SPL).
-- Sub-100ms peak detection window with fast attack and acoustic decay weighting.
-- Hardware microphone decibel trimmer (`-6 dB` to `+6 dB`) accessible in top-right settings.
+### 2. NIOSH Exposure Dose Model
+Sound dosage is calculated using the National Institute for Occupational Safety and Health (NIOSH) standard:
+- Baseline: 85 dBA for an 8-hour maximum permissible exposure.
+- Exchange rate: 3 dB (every 3 dB increase halves allowable exposure time; for instance, 88 dB allows 4 hours, and 91 dB allows 2 hours).
 
-### 3. Centerpiece Hero Dose Ring & Safe Listening Budget
-- Real-time NIOSH sound dose accumulation gauge with fluid radial track ticks and status glow.
-- **Safe Listening Budget Left**: Dynamic countdown reflecting remaining exposure time at the current sound level.
-- Interactive ceiling multiplier slider (`70%` to `130%`) allowing users to customize their daily noise budget based on audiological sensitivity.
+The app continuously integrates sound levels over time to calculate:
+- Cumulative daily dose percentage.
+- Safe listening budget left (how long you can remain in the current sound environment before reaching 100% daily dose).
+- Exposure ceiling multiplier (configurable from 70% to 130% for users with heightened sensitivity or differing clinical needs).
 
-### 4. Edge Acoustic Classification (Offline)
-- Classifies ambient audio streams into actionable categories:
-  - 🚗 **Vehicle Horns & Alarms**
-  - 🚦 **Traffic Corridor**
-  - 🏗️ **Machinery & Drills**
-  - 🎵 **Headphone Audio / Media**
-  - 🌿 **Ambient & Indoor Quiet**
-
-### 5. Interactive Source Decomposition
-- Segmented donut chart with tap-detectable slices.
-- Tapping any slice highlights the segment with an expanded stroke and updates the center display to reveal that hazard's percentage and title in its distinct color.
-- Synchronized with interactive monospace legend rows.
-- Realistic, unique source breakdowns across Today, the 7-day week, and 30-day monthly timeline.
-
-### 6. Battery-Style 24-Hour Timeline & GPS Hotspots
-- Apple-style 24-hour cylinder pill bar chart showing hourly exposure distribution.
-- GPS acoustic hotspot logging identifying geographic zones with hazardous peak decibels.
-- Classified acoustic stream waveform visualization ("What made it loud?").
-
-### 7. Dual-Section Onboarding & Audiology Profiling
-- Streamlined setup asking for **Daily Acoustic Environment** and **Primary Occupation/Lifestyle**.
-- Automatically configures personalized baseline thresholds and protective listening ceilings.
-
-### 8. Peer Hearing League (Friends Circle)
-- Gamified community sound conservation ranking: *Lowest Dose Wins*.
-- Resilient streak badges and inner-ear rest nudges.
+### 3. On-Device Sound Classification
+NoiseStash classifies incoming sound into categories such as traffic corridors, vehicle horns and sirens, machinery/drills, headphone audio, and ambient quiet. Classification runs on a local model without transmitting any data over the network.
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## Key Features
 
-- **UI Framework**: Modern Jetpack Compose with Material 3
-- **Language**: Kotlin 2.0+ (100% Coroutines & StateFlow)
-- **Audio Capture Engine**: Android `AudioRecord` with `MediaRecorder.AudioSource.UNPROCESSED` fallback
-- **Acoustic Dosage Math**: NIOSH clinical standard (3 dB exchange rate above 85 dB SPL baseline)
-- **Local Persistence**: Jetpack Room Database & Encrypted SharedPreferences
-- **Design Language**: Custom smudged cards with theme-adaptive amber/charcoal color tokens
+- **Live Exposure Dashboard**: Real-time sound level display paired with a circular dose gauge tracking daily noise consumption.
+- **Dynamic Listening Budget**: Live countdown indicating how much safe listening time remains at current ambient noise levels.
+- **Source Breakdown**: Donut chart and legend detailing what noise types contributed to exposure across daily, 7-day, and 30-day timelines. Tap any segment to inspect individual hazard percentages.
+- **24-Hour Exposure Timeline**: Hourly bar charts illustrating when noise peaks occurred during the day.
+- **Acoustic Hotspots**: Optional location logging to map recurring high-decibel areas.
+- **Hardware Calibration**: Decibel trimmer (-6 dB to +6 dB) accessible directly in Settings.
+- **Onboarding Assessment**: Simple questionnaire for environment and occupation to set appropriate default thresholds.
+- **Theme Support**: Adaptive interface with light (amber) and dark (charcoal/silver) color palettes, along with a particle typography intro.
 
 ---
 
-## 📱 Build & Installation
+## Architecture & Dependencies
+
+- **Language**: Kotlin 2.0+
+- **UI Toolkit**: Jetpack Compose with Material 3
+- **Asynchronous Execution**: Kotlin Coroutines and StateFlow
+- **Audio Capture**: Android `AudioRecord` with `UNPROCESSED` audio source fallback
+- **Local Storage**: Jetpack Room for time-series dose history and SharedPreferences for user settings
+- **Minimum SDK**: Android 8.0 (API level 26)
+- **Target SDK**: Android 15 (API level 35)
+
+---
+
+## Building from Source
 
 ### Prerequisites
-- Android Studio Ladybug / Meerkat or newer
-- Android SDK 35 (Android 15)
-- JDK 17+
+- Android Studio Ladybug / Meerkat or command-line Android SDK tools
+- Android SDK Platform 35
+- JDK 17 or higher
 
-### Build from Terminal
+### Build Commands
 ```bash
 # Clone the repository
 git clone https://github.com/innocous06/NoiseStash.git
@@ -87,23 +67,29 @@ cd NoiseStash
 # Run unit tests
 ./gradlew testDebugUnitTest
 
-# Assemble Release and Debug APKs
-./gradlew assembleRelease assembleDebug
+# Build debug APK
+./gradlew assembleDebug
+
+# Build release APK
+./gradlew assembleRelease
 ```
 
-Compiled APK files will be generated at:
-- `app/build/outputs/apk/release/app-release.apk`
+Generated APKs will be located in:
 - `app/build/outputs/apk/debug/app-debug.apk`
+- `app/build/outputs/apk/release/app-release.apk`
 
 ---
 
-## 🔒 Privacy & Permissions
+## Privacy
 
-- **Microphone**: Used exclusively for real-time instantaneous SPL calculation and local classification. Audio buffers are discarded in memory after feature extraction and are **never recorded, stored, or transmitted**.
-- **Location**: Used for coarse GPS exposure hotspot logging on-device only.
-- **Offline Guarantee**: Zero cloud analytics, zero remote telemetry, 100% offline edge execution.
+NoiseStash was built with an offline-first architecture:
+- Audio buffers are analyzed in volatile memory to calculate sound pressure levels and discarded immediately.
+- Audio is never recorded to disk, compressed into audio files, or transmitted over any network interface.
+- No third-party tracking, crash analytics, or external telemetry libraries are included.
+- Location access is used only locally to record coordinate stamps for sound peaks on your own device.
 
 ---
 
-## 📄 License
-MIT License. Developed for hearing preservation and acoustic wellness.
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
